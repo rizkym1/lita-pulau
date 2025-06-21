@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Kebutuhan vs Keinginan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        overflow: hidden; /* Mencegah scroll */
+      }
+      .background-sky {
+        /* Warna gradasi biru langit */
+        background: linear-gradient(to bottom, #87ceeb, #1e90ff);
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .cloud {
+        /* Menggunakan gambar awan */
+        background-image: url("awan.png"); /* Ganti dengan URL gambar awan Anda */
+        background-size: contain; /* Memastikan gambar awan pas di dalam elemen */
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 0; /* Hapus border-radius karena ini gambar */
+        position: absolute;
+        opacity: 0.9; /* Sedikit lebih solid */
+        filter: none; /* Hapus blur jika gambar awan sudah bagus */
+      }
+      .cloud-lg {
+        width: 180px; /* Diperbesar sedikit untuk gambar */
+        height: 100px;
+      }
+      .cloud-md {
+        width: 120px;
+        height: 70px;
+      }
+      .cloud-sm {
+        width: 80px;
+        height: 50px;
+      }
+
+      .mountain-left {
+        background: #7cfc00; /* Hijau terang */
+        clip-path: polygon(0 100%, 50% 0, 100% 100%);
+        width: 350px; /* Diperbesar sedikit */
+        height: 250px; /* Diperbesar sedikit */
+        position: absolute;
+        bottom: 0;
+        left: -80px; /* Disesuaikan */
+        z-index: 10;
+      }
+      .mountain-right {
+        background: #228b22; /* Hijau gelap */
+        clip-path: polygon(0 100%, 50% 0, 100% 100%);
+        width: 450px; /* Diperbesar sedikit */
+        height: 300px; /* Diperbesar sedikit */
+        position: absolute;
+        bottom: 0;
+        right: -120px; /* Disesuaikan */
+        z-index: 10;
+      }
+      .water {
+        background-color: #4682b4; /* Biru laut */
+        width: 100%;
+        height: 18%; /* Sedikit dikurangi */
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 5;
+      }
+      .palm-tree {
+        position: absolute;
+        bottom: 15%; /* Dinaikkan sedikit dari air */
+        left: 5%;
+        z-index: 15;
+        width: 100px; /* Diperbesar sedikit */
+        height: 180px; /* Diperbesar sedikit */
+        background-image: url("pohon.png"); /* Ganti dengan URL gambar pohon kelapa Anda di sini */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: bottom center;
+      }
+      .house {
+        position: absolute;
+        top: 3%; /* Dinaikkan sedikit */
+        left: 3%; /* Disesuaikan */
+        width: 70px; /* Diperbesar sedikit */
+        height: 70px; /* Diperbesar sedikit */
+        background-color: #ff6347; /* Merah tomat */
+        border-radius: 12px;
+        z-index: 20;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .house::before {
+        content: "";
+        position: absolute;
+        top: -25px; /* Disesuaikan */
+        width: 0;
+        height: 0;
+        border-left: 35px solid transparent; /* Disesuaikan */
+        border-right: 35px solid transparent; /* Disesuaikan */
+        border-bottom: 25px solid #b22222; /* Merah bata */
+      }
+      .house img {
+        width: 50px; /* Diperbesar sedikit */
+        height: 50px; /* Diperbesar sedikit */
+        filter: invert(100%); /* Warna putih untuk ikon */
+      }
+      .airplane {
+        position: absolute;
+        top: 3%; /* Dinaikkan sedikit */
+        right: 3%; /* Disesuaikan */
+        width: 150px; /* Diperbesar sedikit */
+        height: 100px; /* Diperbesar sedikit */
+        z-index: 20;
+        animation: fly 10s linear infinite; /* Animasi terbang */
+      }
+      .airplane img {
+        width: 100%;
+        height: 100%;
+        transform: rotate(5deg); /* Sedikit rotasi untuk kesan terbang */
+      }
+
+      @keyframes fly {
+        0% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-20px, 10px);
+        }
+        100% {
+          transform: translate(0, 0);
+        }
+      }
+
+      /* Gaya untuk area drop (hati dan bintang) */
+      .drop-area {
+        position: absolute; /* Tetap absolut */
+        width: 300px; /* Diperbesar sedikit */
+        height: 300px; /* Diperbesar sedikit */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 4px dashed rgba(255, 255, 255, 0.7); /* Border lebih tebal */
+        color: white;
+        font-size: 1.3rem; /* Font lebih besar */
+        font-weight: bold;
+        text-align: center;
+        padding: 10px;
+        box-sizing: border-box;
+        filter: drop-shadow(
+          4px 4px 8px rgba(0, 0, 0, 0.3)
+        ); /* Bayangan untuk visibilitas */
+      }
+
+      .drop-area.heart {
+        background-image: url("pulau2.png"); /* Masukkan URL gambar hati Anda di sini */
+        background-size: cover; /* Memastikan gambar menutupi area */
+        background-position: center; /* Memposisikan gambar di tengah */
+        background-repeat: no-repeat; /* Mencegah pengulangan gambar */
+
+        transform: scale(0.9); /* Skala sedikit lebih besar */
+        left: 10%;
+        top: 2%; /* Disesuaikan */
+      }
+
+      .drop-area.star {
+        background-image: url("pulau1.png"); /* Masukkan URL gambar bintang Anda di sini */
+        background-size: cover; /* Memastikan gambar menutupi area */
+        background-position: center; /* Memposisikan gambar di tengah */
+        background-repeat: no-repeat; /* Mencegah pengulangan gambar */
+        transform: scale(0.9); /* Skala sedikit lebih besar */
+        right: 10%;
+        top: 2%; /* Disesuaikan */
+      }
+
+      .lita-character {
+        position: absolute;
+        top: 12%; /* Default position */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px; /* Default size */
+        height: auto;
+        z-index: 30;
+        filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.3));
+      }
+
+      /* Mengubah jembatan menjadi gambar dan MENYESUAIKAN POSISI & UKURAN */
+      .suspension-bridge {
+        position: absolute;
+        top: 20%; /* Default position */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%; /* Default width */
+        height: 70%; /* Default height */
+        background-image: url("jembatan.png"); /* URL gambar jembatan */
+        background-size: contain; /* Gambar menyesuaikan ukuran */
+        background-repeat: no-repeat; /* Tidak ada pengulangan gambar */
+        background-position: center; /* Posisi gambar di tengah */
+        z-index: 25;
+      }
+      /* Menghapus gaya tiang jembatan yang sebelumnya dibuat dengan pseudo-elemen */
+      .suspension-bridge::before,
+      .suspension-bridge::after {
+        content: none; /* Menghilangkan tiang yang dibuat dengan CSS */
+      }
+
+      .item-tray {
+        position: absolute;
+        bottom: 15%; /* Disesuaikan */
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 25px; /* Lebih rounded */
+        padding: 25px; /* Padding lebih besar */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 3px; /* Jarak antar item lebih besar */
+        z-index: 40;
+        min-width: 500px; /* Tambahkan min-width agar tidak terlalu kecil */
+      }
+
+      .draggable-item {
+        width: 90px; /* Diperbesar sedikit */
+        height: 90px; /* Diperbesar sedikit */
+        background-color: #f8f8f8; /* Warna latar belakang item lebih terang */
+        border-radius: 15px; /* Lebih rounded */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: grab;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      }
+      .draggable-item:hover {
+        transform: translateY(-5px); /* Efek hover */
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      }
+      .draggable-item:active {
+        cursor: grabbing;
+        transform: scale(1.08); /* Skala lebih besar saat ditarik */
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+      }
+      .draggable-item img {
+        width: 70px; /* Diperbesar sedikit */
+        height: 70px; /* Diperbesar sedikit */
+        object-fit: contain;
+        object-position: center 60%; /* Menggeser gambar 10% ke bawah dari tengah vertikal */
+      }
+
+      .button-nav {
+        background-color: rgba(255, 255, 255, 0.8); /* Lebih solid */
+        border-radius: 50%;
+        width: 70px; /* Diperbesar sedikit */
+        height: 70px; /* Diperbesar sedikit */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2.2rem; /* Font lebih besar */
+        color: #333;
+        cursor: pointer;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        position: absolute;
+        bottom: 12%; /* Disesuaikan */
+        z-index: 50;
+        transition: transform 0.2s ease-in-out, background-color 0.2s;
+      }
+      .button-nav:hover {
+        background-color: rgba(255, 255, 255, 1);
+        transform: scale(1.1);
+      }
+      .button-nav.left {
+        left: 5%;
+      }
+      .button-nav.right {
+        right: 5%;
+      }
+
+      .category-label {
+        position: absolute;
+        bottom: -55px; /* Jarak dari area drop */
+        background-color: #ffd700; /* Kuning emas */
+        color: #333;
+        padding: 10px 20px; /* Padding lebih besar */
+        border-radius: 20px; /* Lebih rounded */
+        font-weight: bold;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+        white-space: nowrap;
+      }
+      .drop-area.heart .category-label {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .drop-area.star .category-label {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .message-box {
+        position: absolute;
+        bottom: 5%; /* Disesuaikan */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.9); /* Lebih solid */
+        border-radius: 20px; /* Lebih rounded */
+        padding: 5px 3px; /* Padding lebih besar */
+        font-size: 1.2rem; /* Font lebih besar */
+        color: #000000;
+        text-align: center;
+        max-width: 50%; /* Lebar maksimum disesuaikan */
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+        z-index: 60;
+      }
+
+      /* Responsiveness */
+      @media (max-width: 1024px) {
+        .cloud-lg {
+          width: 120px;
+          height: 70px;
+        }
+        .cloud-md {
+          width: 80px;
+          height: 50px;
+        }
+        .cloud-sm {
+          width: 50px;
+          height: 30px;
+        }
+
+        .mountain-left {
+          width: 280px;
+          height: 200px;
+          left: -100px;
+        }
+        .mountain-right {
+          width: 380px;
+          height: 250px;
+          right: -150px;
+        }
+        .palm-tree {
+          bottom: 12%;
+          left: 3%;
+          width: 80px;
+          height: 150px;
+        }
+        .house {
+          top: 2%;
+          left: 2%;
+          width: 60px;
+          height: 60px;
+        }
+        .house::before {
+          top: -20px;
+          border-left: 30px solid transparent;
+          border-right: 30px solid transparent;
+          border-bottom: 20px solid #b22222;
+        }
+        .house img {
+          width: 40px;
+          height: 40px;
+        }
+        .airplane {
+          top: 2%;
+          right: 2%;
+          width: 120px;
+          height: 80px;
+        }
+
+        .drop-area.heart,
+        .drop-area.star {
+          transform: scale(0.7); /* Sesuaikan skala */
+          top: 20%; /* Disesuaikan */
+          width: 250px; /* Ukuran dasar tetap */
+          height: 250px;
+          font-size: 1.1rem;
+        }
+        .drop-area.heart {
+          left: 5%;
+        }
+        .drop-area.star {
+          right: 5%;
+        }
+
+        .lita-character {
+          top: 8%; /* Adjusted for 1024px */
+          width: 140px; /* Adjusted size */
+        }
+        .suspension-bridge {
+          top: 28%; /* Adjusted for 1024px, more below Lita */
+          width: 450px; /* Adjusted width */
+          height: 80px; /* Adjusted height */
+          padding: 0 20px;
+        }
+        .suspension-bridge::before,
+        .suspension-bridge::after {
+          width: 10px;
+          height: 100px;
+          top: -50px;
+        }
+        .item-tray {
+          bottom: 18%; /* Disesuaikan */
+          padding: 20px;
+          gap: 20px;
+          min-width: 500px;
+        }
+        .draggable-item {
+          width: 80px;
+          height: 80px;
+        }
+        .draggable-item img {
+          width: 60px;
+          height: 60px;
+        }
+        .button-nav {
+          width: 60px;
+          height: 60px;
+          font-size: 2rem;
+          bottom: 8%;
+        }
+        .message-box {
+          font-size: 1rem;
+          padding: 15px 30px;
+          bottom: 4%;
+          max-width: 75%;
+        }
+        .category-label {
+          padding: 8px 15px;
+          font-size: 0.9rem;
+          bottom: -45px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .cloud-lg {
+          width: 90px;
+          height: 50px;
+        }
+        .cloud-md {
+          width: 60px;
+          height: 40px;
+        }
+        .cloud-sm {
+          width: 40px;
+          height: 25px;
+        }
+        .mountain-left {
+          width: 220px;
+          height: 160px;
+          left: -120px;
+        }
+        .mountain-right {
+          width: 300px;
+          height: 200px;
+          right: -180px;
+        }
+        .palm-tree {
+          bottom: 10%;
+          left: 0%;
+          width: 70px;
+          height: 130px;
+        }
+        .house {
+          top: 1%;
+          left: 1%;
+          width: 50px;
+          height: 50px;
+        }
+        .house::before {
+          top: -15px;
+          border-left: 25px solid transparent;
+          border-right: 25px solid transparent;
+          border-bottom: 15px solid #b22222;
+        }
+        .house img {
+          width: 30px;
+          height: 30px;
+        }
+        .airplane {
+          top: 1%;
+          right: 1%;
+          width: 100px;
+          height: 70px;
+        }
+        .drop-area.heart,
+        .drop-area.star {
+          transform: scale(0.6);
+          top: 15%;
+          width: 200px;
+          height: 200px;
+          font-size: 1rem;
+        }
+        .drop-area.heart {
+          left: -2%;
+        }
+        .drop-area.star {
+          right: -2%;
+        }
+
+        .lita-character {
+          top: 5%; /* Adjusted for 768px */
+          width: 120px; /* Adjusted size */
+        }
+        .suspension-bridge {
+          top: 22%; /* Adjusted for 768px, more below Lita */
+          width: 350px; /* Adjusted width */
+          height: 60px; /* Adjusted height */
+          padding: 0 15px;
+        }
+        .suspension-bridge::before,
+        .suspension-bridge::after {
+          width: 8px;
+          height: 80px;
+          top: -40px;
+        }
+        .item-tray {
+          bottom: 15%;
+          flex-wrap: wrap;
+          width: 95%;
+          padding: 15px;
+          gap: 15px;
+          min-width: unset;
+        }
+        .draggable-item {
+          width: 70px;
+          height: 70px;
+        }
+        .draggable-item img {
+          width: 50px;
+          height: 50px;
+        }
+        .button-nav {
+          width: 50px;
+          height: 50px;
+          font-size: 1.8rem;
+          bottom: 6%;
+        }
+        .message-box {
+          font-size: 0.9rem;
+          padding: 12px 25px;
+          bottom: 2%;
+          max-width: 90%;
+        }
+        .category-label {
+          padding: 6px 10px;
+          font-size: 0.8rem;
+          bottom: -35px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .cloud-lg {
+          width: 70px;
+          height: 40px;
+        }
+        .cloud-md {
+          width: 50px;
+          height: 30px;
+        }
+        .cloud-sm {
+          width: 30px;
+          height: 20px;
+        }
+        .mountain-left {
+          width: 180px;
+          height: 120px;
+          left: -150px;
+        }
+        .mountain-right {
+          width: 250px;
+          height: 160px;
+          right: -200px;
+        }
+        .palm-tree {
+          bottom: 8%;
+          left: -5%;
+          width: 60px;
+          height: 110px;
+        }
+        .house {
+          top: 0%;
+          left: 0%;
+          width: 40px;
+          height: 40px;
+        }
+        .house::before {
+          top: -12px;
+          border-left: 20px solid transparent;
+          border-right: 20px solid transparent;
+          border-bottom: 12px solid #b22222;
+        }
+        .house img {
+          width: 25px;
+          height: 25px;
+        }
+        .airplane {
+          top: 0%;
+          right: 0%;
+          width: 80px;
+          height: 60px;
+        }
+        .drop-area.heart,
+        .drop-area.star {
+          transform: scale(0.5);
+          top: 12%;
+          width: 180px;
+          height: 180px;
+          font-size: 0.9rem;
+        }
+        .drop-area.heart {
+          left: -5%;
+        }
+        .drop-area.star {
+          right: -5%;
+        }
+
+        .lita-character {
+          top: 3%; /* Adjusted for 480px */
+          width: 100px; /* Adjusted size */
+        }
+        .suspension-bridge {
+          top: 18%; /* Adjusted for 480px, more below Lita */
+          width: 280px; /* Adjusted width */
+          height: 45px; /* Adjusted height */
+          padding: 0 10px;
+        }
+        .suspension-bridge::before,
+        .suspension-bridge::after {
+          width: 6px;
+          height: 70px;
+          top: -35px;
+        }
+        .item-tray {
+          bottom: 12%;
+          padding: 10px;
+          gap: 10px;
+          width: 98%;
+        }
+        .draggable-item {
+          width: 60px;
+          height: 60px;
+        }
+        .draggable-item img {
+          width: 40px;
+          height: 40px;
+        }
+        .button-nav {
+          width: 45px;
+          height: 45px;
+          font-size: 1.6rem;
+          bottom: 4%;
+        }
+        .message-box {
+          font-size: 0.8rem;
+          padding: 10px 20px;
+          bottom: 1%;
+          max-width: 95%;
+        }
+        .category-label {
+          padding: 4px 8px;
+          font-size: 0.7rem;
+          bottom: -30px;
+        }
+      }
+      .retry-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #ffcc00;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .retry-button:hover {
+        background-color: #e6b800;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background-sky">
+      <div class="cloud cloud-lg" style="top: 10%; left: 15%"></div>
+      <div class="cloud cloud-md" style="top: 5%; right: 20%"></div>
+      <div class="cloud cloud-sm" style="top: 20%; left: 40%"></div>
+      <div class="cloud cloud-lg" style="top: 25%; right: 5%"></div>
+      <div class="cloud cloud-md" style="top: 15%; left: 60%"></div>
+
+      <div class="water"></div>
+      <div class="palm-tree"></div>
+
+      <div class="airplane">
+        <img src="pesawat.png" alt="Pesawat" />
+      </div>
+
+      <img src="lita.png" alt="Lita" class="lita-character" />
+      <div class="suspension-bridge"></div>
+
+      <div id="kebutuhan-drop-area" class="drop-area heart">
+        <div class="category-label">KEBUTUHAN</div>
+      </div>
+
+      <div id="keinginan-drop-area" class="drop-area star">
+        <div class="category-label">KEINGINAN</div>
+      </div>
+
+      <div class="item-tray" id="itemTray">
+        <!-- Akan diisi lewat JavaScript agar bisa di-reset -->
+      </div>
+
+      <div class="message-box">
+        "Bantu Lita pilah harta karun! Mana yang KEBUTUHAN (penting sekali)?
+        Mana yang KEINGINAN (Lita mau saja)?"
+      </div>
+
+      <button id="toggleMusicBtn" class="music-toggle">🔊</button>
+      <button id="retryBtn" class="retry-button">🔁 Coba Lagi</button>
+    </div>
+
+    <!-- Audio -->
+    <audio id="successSound" src="success-340660.mp3" preload="auto"></audio>
+    <audio id="failSound" src="fail-144746.mp3" preload="auto"></audio>
+    <audio
+      id="backgroundMusic"
+      src="audio.mp3"
+      autoplay
+      loop
+      preload="auto"
+    ></audio>
+
+    <script>
+      const successSound = document.getElementById("successSound");
+      const failSound = document.getElementById("failSound");
+      const backgroundMusic = document.getElementById("backgroundMusic");
+      const toggleMusicBtn = document.getElementById("toggleMusicBtn");
+      const retryBtn = document.getElementById("retryBtn");
+      const itemTray = document.getElementById("itemTray");
+      const kebutuhanArea = document.getElementById("kebutuhan-drop-area");
+      const keinginanArea = document.getElementById("keinginan-drop-area");
+
+      const items = [
+        { src: "roti.png", category: "kebutuhan", alt: "Roti" },
+        { src: "susu.png", category: "kebutuhan", alt: "Susu" },
+        { src: "buku.png", category: "kebutuhan", alt: "Buku" },
+        { src: "balon.png", category: "keinginan", alt: "Balon" },
+        { src: "mainan.png", category: "keinginan", alt: "Mainan" },
+        { src: "eskrim.png", category: "keinginan", alt: "Es Krim" },
+      ];
+
+      let draggedItem = null;
+
+      function createDraggableItem(item) {
+        const div = document.createElement("div");
+        div.className = "draggable-item";
+        div.draggable = true;
+        div.dataset.category = item.category;
+        div.innerHTML = `<img src="${item.src}" alt="${item.alt}" />`;
+
+        div.addEventListener("dragstart", () => {
+          draggedItem = div;
+          div.classList.add("opacity-50");
+        });
+
+        div.addEventListener("dragend", () => {
+          div.classList.remove("opacity-50");
+          draggedItem = null;
+        });
+
+        return div;
+      }
+
+      function resetGame() {
+        kebutuhanArea.innerHTML = `<div class="category-label">KEBUTUHAN</div>`;
+        keinginanArea.innerHTML = `<div class="category-label">KEINGINAN</div>`;
+        itemTray.innerHTML = "";
+        items.forEach((item) => {
+          const el = createDraggableItem(item);
+          itemTray.appendChild(el);
+        });
+      }
+
+      [kebutuhanArea, keinginanArea].forEach((area) => {
+        area.addEventListener("dragover", (e) => e.preventDefault());
+
+        area.addEventListener("drop", (e) => {
+          e.preventDefault();
+          if (!draggedItem) return;
+
+          const itemCategory = draggedItem.dataset.category;
+          const targetId = area.id;
+
+          if (
+            (itemCategory === "kebutuhan" &&
+              targetId === "kebutuhan-drop-area") ||
+            (itemCategory === "keinginan" && targetId === "keinginan-drop-area")
+          ) {
+            area.appendChild(draggedItem);
+            draggedItem.draggable = false;
+            draggedItem.style.cursor = "default";
+            successSound.currentTime = 0;
+            successSound.play();
+          } else {
+            failSound.currentTime = 0;
+            failSound.play();
+          }
+        });
+      });
+
+      toggleMusicBtn.addEventListener("click", () => {
+        if (backgroundMusic.paused) {
+          backgroundMusic.play();
+          toggleMusicBtn.textContent = "🔊";
+        } else {
+          backgroundMusic.pause();
+          toggleMusicBtn.textContent = "🔇";
+        }
+      });
+
+      retryBtn.addEventListener("click", () => {
+        resetGame();
+      });
+
+      // Autoplay fallback
+      backgroundMusic.play().catch(() => {
+        console.log("Autoplay diblokir.");
+      });
+
+      document.body.addEventListener(
+        "click",
+        () => {
+          if (backgroundMusic.paused) {
+            backgroundMusic.play().catch(() => {});
+          }
+        },
+        { once: true }
+      );
+
+      // Jalankan saat pertama kali
+      resetGame();
+    </script>
+  </body>
+</html>
